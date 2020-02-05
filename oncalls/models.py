@@ -31,19 +31,18 @@ def init_days():
     # number_of_tasks = int(input('how many tasks do you have each days? '))
     # number_of_doctors = int(input('how many doctors do you have? '))
     # doctors = [number_of_doctors]
-    number_of_days = 28
+    number_of_days = 2
     number_of_tasks = 4
     days = [Day] * number_of_days
-    # for i in range(number_of_days):
-    #     days[i] = Day(number_of_tasks)
     for day in days:
-        day = Day(number_of_days)
+        day = Day(number_of_tasks)
 
     return days
 
 
 def available_doctors(days_index, task_index):
     available = doctors.copy()
+    print(available)
 
     for j in range(days_index, days_index - 2, -1):
         if j >= 0:
@@ -56,6 +55,7 @@ def available_doctors(days_index, task_index):
                     # TODO: remove print
                 except IndexError:
                     print("no task I guess")
+    print(available)
 
     return available
 
@@ -67,7 +67,7 @@ def algorithm2(days_index=0, task_index=0):
     docs = available_doctors(days_index, task_index)
 
     try:
-        print(days[days_index].tasks[task_index])
+        (days[days_index].tasks[task_index])
     except IndexError:
         days[days_index].tasks.append(Doctor)
 
@@ -81,26 +81,6 @@ def algorithm2(days_index=0, task_index=0):
             if algorithm2(days_index + 1, 0):
                 return days
     return False
-
-
-# def algorithm(days, days_index=0, task_index=0, doctor_index=0):
-#     print(days_index)
-#     # if days_index >= len(days):  # only if we filled all the days
-#     #     return True
-#     # if doctor_index >= len(available_doctors()):
-#     #     return False
-#
-#     day_doctors = available_doctors(days, days_index)
-#     for task_index in range(len(days[days_index].tasks)):  # all tasks
-#         for doctor_index in range(len(day_doctors)):  # all doctors
-#             if day_doctors[doctor_index].most_tasked() != task_index:
-#                 #
-#                 # we go bellow this line only if we correctly filled the task, means success
-#                 assign_doctor(days[days_index].tasks[task_index], day_doctors[doctor_index])
-#
-#                 # if doctor_index < len(day_doctors):
-#                 #     if task_index < len(days[days_index].tasks):
-#                 #         algorithm(days, days_index, task_index + 1, doctor_index)
 
 
 doctors = [
@@ -127,4 +107,9 @@ doctors = [
 ]
 
 days = init_days()
-print(algorithm2())
+algorithm2()
+for index, day in enumerate(days):
+    print("day: ", index, "doctors: ", end='')
+    for task in day.tasks:
+        print(" ", task.name, end='')
+    print()
