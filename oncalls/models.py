@@ -20,7 +20,7 @@ class Day:
     tasks = []
 
     def __init__(self, number_tasks):
-        self.tasks = [Doctor] * 4
+        self.tasks = [] * 4
 
 
 def init_days():
@@ -42,9 +42,9 @@ def available_doctors(days, days_index):
     available = doctors.copy()
 
     for task in days[days_index].tasks:
-        if task:
-            available.remove(task)
+        available.remove(task)
 
+    # check the previous days
     if days[days_index - 1 >= 0]:
         for task in days[days_index - 1].tasks:
             available.remove(task)
@@ -54,16 +54,18 @@ def available_doctors(days, days_index):
     return available
 
 
+def assign_doctor(task, doctor):
+    task = doctor
+
+
 def pre_algorithm():
     days = init_days()
-    # print(days[0])
     days = algorithm(days)
 
 
 def algorithm(days, days_index=0, task_index=0, doctor_index=0):
     if days_index >= len(days):  # only if we filled all the days
         return days
-    # print(days)
     if task_index >= len(days[days_index].tasks):
         days_index += 1
 
@@ -72,7 +74,7 @@ def algorithm(days, days_index=0, task_index=0, doctor_index=0):
         for doctor_index in range(len(day_doctors)):  # all doctors
             if day_doctors[doctor_index].most_tasked() != task_index:
                 # we go bellow this line only if we correctly filled the task, means success
-                days[days_index].tasks[task_index] = day_doctors[doctor_index]
+                assign_doctor(days[days_index].tasks[task_index], day_doctors[doctor_index])
                 algorithm(days, days_index, task_index, doctor_index)
 
 
