@@ -28,7 +28,6 @@ class Month:
         for i in range(number_of_days):
             print("daaaay")
             days.append(Day(number_of_tasks))
-        # days = [Day(number_tasks=number_of_tasks)] * number_of_days
 
 
 # def init_days():

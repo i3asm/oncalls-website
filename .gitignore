@@ -1,4 +1,5 @@
 *.sqlite3
 .vscode/
 .idea
+.idea/*
 /.idea/
