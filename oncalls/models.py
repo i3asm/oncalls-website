@@ -1,3 +1,4 @@
+from enum import Enum
 import random
 
 from django.db import models
@@ -9,84 +10,49 @@ class Doctor:
 
     def __init__(self, name):
         self.name = name
+        self.stat = [0] * 7
+        self.tasks = [0]
 
 
 class Day:
-    requests_on = []
-    requests_off = []
-    tasks = []
 
-    def __init__(self, number_tasks):
+    def __init__(self, number_of_tasks):
+        self.requests_on = []
+        self.requests_off = []
         self.tasks = []
+        for i in range(number_of_tasks):
+            self.tasks.append(Doctor('__empty__'))
+
+
+class Week(Enum):
+    sun = 0
+    mon = 1
+    tue = 2
+    wed = 3
+    thu = 4
+    fri = 5
+    sat = 6
 
 
 class Month:
-    days = []
 
-    def __init__(self, number_of_days, number_of_tasks):
-        days = [Day] * number_of_days
-        for i in range(number_of_days):
-            print("daaaay")
-            days.append(Day(number_of_tasks))
+    def __init__(self, number_of_days, number_of_tasks, beginning):
+        self.days = []
+        self.beginning = beginning
+        for i in range(beginning, beginning + number_of_days):
+            # print("[Month] init day ", i - beginning)
+            self.days.append(Day(number_of_tasks))
 
+    def get_day(self, day_index):
+        return Week((day_index + self.beginning) % 7).name
 
-# def init_days():
-#     # number_of_days = int(input('how many days do you want? '))
-#     # number_of_tasks = int(input('how many tasks do you have each days? '))
-#     # number_of_doctors = int(input('how many doctors do you have? '))
-#     # doctors = [number_of_doctors]
-#     number_of_days = 3
-#     number_of_tasks = 4
-#     days = [Day] * number_of_days
-#     for day in days:
-#         day = Day(number_of_tasks)
-#
-#     return days
+    def get_index(self, day_index):
+        return (day_index + self.beginning) % 7
 
-
-# def available_doctorsV2(days_index, task_index):
-#     available = doctors.copy()
-#     # print(days)
-#     print(days[0].tasks)
-#     print(days[1].tasks)
-#
-#     for j in range(days_index, days_index - 2, -1):
-#         if j >= 0:
-#             for i in range(task_index + 1):
-#                 print("available: day: ", j, "task: ", i)
-#                 try:
-#                     available.remove(days[j].tasks[i])
-#                 except ValueError:
-#                     print("no doctor I guess")
-#                     # TODO: remove print
-#                 except IndexError:
-#                     print("no task I guess")
-#     # print(available)
-#
-#     return available
-
-
-# def algorithmV2(days_index=0, task_index=0):
-#     # if success
-#     if days_index >= len(days):
-#         return True
-#     docs = available_doctorsV2(days_index, task_index)
-#
-#     try:
-#         (days[days_index].tasks[task_index])
-#     except IndexError:
-#         days[days_index].tasks.append(Doctor)
-#
-#     for doc in docs:
-#         days[days_index].tasks[task_index] = doc
-#         print("dr.", doc.name, " is assigned")
-#         if task_index < days[days_index].number_of_tasks:
-#             if algorithmV2(days_index, task_index + 1):
-#                 return days
-#         else:
-#             if algorithmV2(days_index + 1, 0):
-#                 return days
-#     return False
+    # this is supposed to get the index of a day object
+    # def get_inde(self, day):
+    #     print(self.days.index(day))
+    #
 
 
 doctors = [
@@ -113,31 +79,75 @@ doctors = [
 ]
 
 
+# update the stats of each doctor until certain day and task
+def update_stat(day, task):
+    for doctor in doctors:
+        doctor.stat = [0] * 7
+    for i in range(day):
+        for j in range(len(month.days[i].tasks)):
+            try:
+                month.days[i].tasks[j].stat[month.get_index(i)] += 1
+                if i == day and j == task:
+                    return
+            except ValueError:
+                print("maybe no doctors in there")
+
+
+# # update stats for all doctors in every day.
+# def update_stat():
+#     for doctor in doctors:
+#         doctor.stat = [0] * 7
+#     for day in month.days:
+#         for task in day.tasks:
+#             print(month.get_index(month.days.index(day)))
+
+
 def available_doctors(day, task):
     available = doctors.copy()
-    for i in range(len(month.days)):
+    print('[available] day: ', day, ', task: ', task)
+    available = _con_days(day, task, available)
+    available = _con_weekends(day, task, available)
+
+    return available
+
+
+def _con_days(day, task, available):
+    for i in range(max(day - 2, 0), day + 1):
         for j in range(len(month.days[i].tasks)):
             try:
                 available.remove(month.days[i].tasks[j])
+                if i == day and j == task:
+                    return available
             except ValueError:
+                if i == day and j == task:
+                    return available
                 print("maybe no doctors in there")
-            if i == day and j == task:
-                return available
+    return available
+
+
+def _con_weekends(day, task, available):
+    for i in range(day + 1):
+        pass
+
     return available
 
 
 def print_month():
     for index, day in enumerate(month.days):
-        print("day: ", index, "doctors: ", end='')
+        # print("day:", index, "doctors: ", end='')
         for task in day.tasks:
-            print(" ", task.name, end='')
+            try:
+                print(task.name, ',', sep='', end=' ')
+            except AttributeError:
+                print('attribute error')
+                return
         print()
 
 
 def pre_algorithm_v3():
     algorithm_v3(0, 0)
-    print(month.days)
-    return month
+    # print(month.days)
+    # return month
 
 
 def algorithm_v3(days_index, tasks_index):
@@ -146,23 +156,30 @@ def algorithm_v3(days_index, tasks_index):
 
     available = available_doctors(days_index, tasks_index)
 
-    for doc in available:
-        month.days[days_index].tasks[tasks_index] = doc
+    for i in range(len(available)):
+        month.days[days_index].tasks[tasks_index] = available.pop(random.randint(0, len(available) - 1))
+        # print(month.days[days_index].tasks[tasks_index].name)
+        # print_month()
 
-        if tasks_index < len(month.days[days_index].tasks):
+        # move the index
+        if tasks_index < (len(month.days[days_index].tasks) - 1):
             if algorithm_v3(days_index, tasks_index + 1):
                 return True
         else:
             if algorithm_v3(days_index + 1, 0):
                 return True
+        print("[algorithm] this doctor doesn't fit", days_index, 'task: ', tasks_index)
+
+    # if we tried all doctors and failed
+    print("\033[93m[algorithm] [critical] all doctors didn't work!, day: ", days_index,"task: ", tasks_index, "\033[0m")
     return False
 
 
-number_of_days = 3
-number_of_tasks = 4
-month = Month(number_of_days, number_of_tasks)
-print(month.days)
+# number_of_days = 4
+# number_of_tasks = 4
+month = Month(number_of_days=28, number_of_tasks=4, beginning=2)
 pre_algorithm_v3()
 print_month()
-# days = init_days()
-# algorithmV2()
+update_stat(len(month.days), len(month.days[len(month.days) - 1].tasks))
+for doctor in doctors:
+    print(doctor.name, ": ", doctor.stat)
