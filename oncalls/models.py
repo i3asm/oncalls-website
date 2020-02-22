@@ -85,10 +85,11 @@ def update_stat(day, task):
         doctor.stat = [0] * 7
     for i in range(day):
         for j in range(len(month.days[i].tasks)):
+            # print("[update] stat day:", i, "task:", j)
             try:
-                month.days[i].tasks[j].stat[month.get_index(i)] += 1
                 if i == day and j == task:
                     return
+                month.days[i].tasks[j].stat[month.get_index(i)] += 1
             except ValueError:
                 print("maybe no doctors in there")
 
@@ -105,6 +106,7 @@ def update_stat(day, task):
 def available_doctors(day, task):
     available = doctors.copy()
     print('[available] day: ', day, ', task: ', task)
+    update_stat(day, task)
     available = _con_days(day, task, available)
     available = _con_weekends(day, task, available)
 
@@ -126,7 +128,7 @@ def _con_days(day, task, available):
 
 
 def _con_weekends(day, task, available):
-    for i in range(day + 1):
+    for i in range(day):
         pass
 
     return available
@@ -171,15 +173,17 @@ def algorithm_v3(days_index, tasks_index):
         print("[algorithm] this doctor doesn't fit", days_index, 'task: ', tasks_index)
 
     # if we tried all doctors and failed
-    print("\033[93m[algorithm] [critical] all doctors didn't work!, day: ", days_index,"task: ", tasks_index, "\033[0m")
+    print("\033[93m[algorithm] [critical] all doctors didn't work!, day: ", days_index, "task: ", tasks_index,
+          "\033[0m")
     return False
 
 
 # number_of_days = 4
 # number_of_tasks = 4
+
 month = Month(number_of_days=28, number_of_tasks=4, beginning=2)
 pre_algorithm_v3()
 print_month()
 update_stat(len(month.days), len(month.days[len(month.days) - 1].tasks))
-for doctor in doctors:
-    print(doctor.name, ": ", doctor.stat)
+# for doctor in doctors:
+#     print(doctor.name, ": ", doctor.stat)
